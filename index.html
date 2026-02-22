@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POZA-KI Elite Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#c9a84c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--gold:#c9a84c;--gold-light:#e8d48b;--gold-glow:rgba(201,168,76,0.15);
+--bg:#06060B;--card:#0c0c14;--card2:#12122a;--el:#1a1a3a;
+--text:#eeeef0;--soft:#a1a1aa;--muted:#63637a;
+--green:#34d399;--red:#f87171;--blue:#60a5fa;--purple:#a78bfa;
+--bd:rgba(255,255,255,0.04);
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden;height:100vh}
+.serif{font-family:'Playfair Display',Georgia,serif}
+
+/* LAYOUT */
+.app{display:flex;height:100vh}
+.sidebar{width:220px;background:var(--card);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:10px 28px;border-bottom:1px solid var(--bd);background:var(--card);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.content{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 28px;scroll-behavior:smooth}
+
+/* SIDEBAR */
+.logo{padding:20px 18px;border-bottom:1px solid var(--bd)}
+.logo-text{font-family:'Playfair Display',serif;font-size:22px;font-weight:800}
+.logo-ki{color:var(--gold);font-style:italic}
+.logo-tag{display:inline-block;font-size:8px;color:var(--gold);background:var(--gold-glow);padding:2px 8px;border-radius:4px;letter-spacing:2px;margin-left:6px;font-family:'DM Sans',sans-serif}
+.nav{flex:1;padding:12px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;cursor:pointer;margin-bottom:2px;transition:all .2s;color:var(--muted);position:relative;font-size:13px}
+.nav-item:hover{background:rgba(201,168,76,0.06);color:var(--soft)}
+.nav-item.active{background:var(--gold-glow);color:var(--gold);font-weight:700}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--gold);border-radius:0 3px 3px 0}
+.nav-em{font-size:16px;width:22px;text-align:center}
+.nav-badge{margin-left:auto;width:20px;height:20px;border-radius:10px;background:var(--red);font-size:9px;font-weight:800;color:#000;display:flex;align-items:center;justify-content:center}
+.sidebar-footer{padding:14px 18px;border-top:1px solid var(--bd)}
+.user-row{display:flex;align-items:center;gap:10px}
+.user-avatar{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--gold-glow),rgba(201,168,76,0.3));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--gold)}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;transition:transform .2s,border-color .2s}
+.card:hover{border-color:rgba(255,255,255,0.06)}
+.card-glass{background:rgba(12,12,20,0.7);backdrop-filter:blur(20px);border:1px solid rgba(201,168,76,0.12)}
+.card-gold{background:linear-gradient(135deg,rgba(201,168,76,0.12),rgba(201,168,76,0.03));border:1px solid rgba(201,168,76,0.2)}
+.card-red{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.12)}
+.card-green{background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.12)}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+.grid-23{display:grid;grid-template-columns:1.5fr 1fr;gap:14px}
+
+/* LIVE COUNTER */
+.live-counter{font-family:'Playfair Display',serif;font-size:38px;font-weight:900;color:var(--gold);text-shadow:0 0 40px rgba(201,168,76,0.3),0 0 80px rgba(201,168,76,0.1);transition:all .3s}
+.live-label{font-size:9px;font-weight:700;color:var(--gold);letter-spacing:2.5px}
+.live-sub{display:flex;gap:16px;margin-top:8px}
+.live-sub span{font-size:11px;color:var(--green);display:flex;align-items:center;gap:4px}
+
+/* KPI */
+.kpi-val{font-family:'Playfair Display',serif;font-size:28px;font-weight:800}
+.kpi-label{font-size:10px;color:var(--muted);margin-top:2px}
+.kpi-change{font-size:9px;font-weight:700;color:var(--green)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:14px;font-size:10px;font-weight:700}
+.badge-notfall{color:var(--red);background:rgba(248,113,113,0.12)}
+.badge-lead{color:var(--gold);background:var(--gold-glow)}
+.badge-termin{color:var(--green);background:rgba(52,211,153,0.1)}
+.badge-info{color:var(--muted);background:rgba(255,255,255,0.03)}
+.badge-sent{padding:2px 7px;border-radius:10px;font-size:9px}
+
+/* TASK CARDS */
+.task{background:var(--card);border:1px solid var(--bd);border-radius:12px;cursor:pointer;overflow:hidden;margin-bottom:8px;transition:all .2s}
+.task:hover{transform:translateX(3px);border-color:rgba(255,255,255,0.08)}
+.task-urgent{border-color:rgba(248,113,113,0.2)}
+.task-urgent:hover{border-color:rgba(248,113,113,0.4)}
+.task-bar{height:3px}
+.task-inner{padding:12px 14px}
+.task-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.task-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.task-name{font-size:14px;font-weight:700}
+.task-meta{font-size:10px;color:var(--muted);display:flex;gap:6px;align-items:center;margin-top:2px}
+.task-sum{font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:8px}
+.task-val{font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:var(--gold)}
+
+/* BUTTONS */
+.btn{width:100%;padding:8px 0;border-radius:8px;border:none;cursor:pointer;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;transition:all .15s}
+.btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-gold{background:var(--gold);color:#000}
+.btn-red{background:var(--red);color:#fff}
+.btn-done{background:transparent;border:1px solid var(--green);color:var(--green)}
+
+/* PROGRESS RING */
+.ring-container{position:relative;display:flex;align-items:center;justify-content:center}
+.ring-label{position:absolute;text-align:center}
+.ring-val{font-family:'Playfair Display',serif;font-weight:800}
+
+/* ACHIEVEMENT */
+.ach{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.ach-item{text-align:center;padding:6px 12px;border-radius:10px;flex-shrink:0;min-width:80px;transition:all .2s;cursor:default}
+.ach-item:hover{transform:translateY(-2px)}
+.ach-done{background:var(--gold-glow);border:1px solid rgba(201,168,76,0.2)}
+.ach-lock{background:var(--card);border:1px solid var(--bd);opacity:0.35}
+.ach-em{font-size:18px}
+.ach-name{font-size:8px;font-weight:700;margin-top:2px}
+
+/* CHART BAR */
+.bar-chart{display:flex;align-items:flex-end;gap:5px}
+.bar-col{flex:1;text-align:center}
+.bar-rect{margin:0 auto;border-radius:3px 3px 0 0;transition:height .6s ease}
+.bar-label{font-size:8px;color:var(--muted);margin-top:3px}
+.bar-val{font-size:8px;color:var(--text);margin-bottom:2px}
+
+/* SLIDER */
+.slider-row{margin-bottom:18px}
+.slider-head{display:flex;justify-content:space-between;margin-bottom:6px}
+.slider-label{font-size:12px;color:var(--text)}
+.slider-val{font-size:14px;font-weight:700;color:var(--gold);font-family:'Playfair Display',serif}
+input[type=range]{width:100%;accent-color:var(--gold);height:4px;cursor:pointer;-webkit-appearance:none;background:var(--bd);border-radius:2px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--gold);cursor:pointer;box-shadow:0 0 10px rgba(201,168,76,0.4)}
+
+/* DETAIL PANEL */
+.detail{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px;position:sticky;top:0}
+.detail-name{font-size:20px;font-weight:700}
+.detail-close{cursor:pointer;color:var(--muted);font-size:14px;transition:color .2s}
+.detail-close:hover{color:var(--text)}
+.summary-box{background:var(--card2);border-radius:10px;padding:14px;margin:10px 0;border-left:3px solid var(--gold)}
+.transcript{background:var(--bg);border-radius:10px;padding:14px;margin-top:8px}
+.tr-msg{display:flex;gap:8px;margin-bottom:8px}
+.tr-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:8px;font-weight:800}
+.tr-ki{background:var(--gold-glow);color:var(--gold)}
+.tr-an{background:rgba(255,255,255,0.04);color:var(--muted)}
+.tr-text{font-size:12px;line-height:1.6}
+
+/* MONEY RAIN */
+.money-particle{position:fixed;pointer-events:none;font-size:14px;opacity:0;z-index:100;animation:moneyFall 3s ease-in forwards}
+@keyframes moneyFall{0%{opacity:0;transform:translateY(-20px) rotate(0deg)}10%{opacity:0.7}90%{opacity:0.3}100%{opacity:0;transform:translateY(100vh) rotate(360deg)}}
+
+/* CONFETTI */
+.confetti{position:fixed;pointer-events:none;width:8px;height:8px;z-index:100;animation:confettiFall 2.5s ease-in forwards}
+@keyframes confettiFall{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+
+/* PULSE */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(201,168,76,0.1)}50%{box-shadow:0 0 40px rgba(201,168,76,0.25)}}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes countUp{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+.animate-in{animation:slideIn .4s ease forwards}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+.glow-card{animation:glow 3s ease infinite}
+
+/* LEVEL BAR */
+.level-bar{height:6px;background:var(--bd);border-radius:3px;overflow:hidden;margin-top:4px}
+.level-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light));transition:width 1s ease}
+
+/* SCROLLBAR */
+.content::-webkit-scrollbar{width:6px}
+.content::-webkit-scrollbar-track{background:transparent}
+.content::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:3px}
+.content::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.1)}
+
+.hidden{display:none}
+.mb-8{margin-bottom:8px}
+.mb-12{margin-bottom:12px}
+.mb-14{margin-bottom:14px}
+.mb-16{margin-bottom:16px}
+.text-center{text-align:center}
+.flex{display:flex}.gap-4{gap:4px}.gap-6{gap:6px}.gap-8{gap:8px}.gap-10{gap:10px}.gap-12{gap:12px}
+.items-center{align-items:center}
+.justify-between{justify-content:space-between}
+.flex-1{flex:1}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+var G="#c9a84c",BG="#06060B",CD="#0c0c14",TX="#eeeef0",MU="#63637a",GR="#34d399",RD="#f87171",BD="rgba(255,255,255,0.04)";
+
+var calls=[
+{id:1,n:"Maria Schneider",t:"13:15",dur:"1:47",st:"notfall",sum:"ROHRBRUCH im Keller! Wasser läuft aus der Wand. Sofortige Hilfe nötig.",sent:"dringend",val:800,ok:false,tr:[{r:"ki",m:"Spitzer Installationen, mein Name ist Lisa. Wie kann ich Ihnen helfen?"},{r:"an",m:"Bitte helfen Sie! Bei uns rinnt Wasser aus der Wand im Keller!"},{r:"ki",m:"Das klingt nach einem Notfall. Haben Sie den Hauptwasserhahn zugedreht?"},{r:"an",m:"Nein, wo ist der?"},{r:"ki",m:"Meistens beim Wasserzähler im Keller. Drehen Sie ihn im Uhrzeigersinn zu. Ich markiere Ihren Anruf als dringend und Herr Spitzer meldet sich in 30 Minuten."}]},
+{id:2,n:"Peter Wagner",t:"11:40",dur:"4:12",st:"lead",sum:"Komplette Badsanierung geplant. Budget ca. €20.000. Erwartet Kostenvoranschlag.",sent:"positiv",val:20000,ok:false,tr:[{r:"ki",m:"Spitzer Installationen, Lisa hier. Wie kann ich helfen?"},{r:"an",m:"Grüß Gott, wir möchten unser Bad komplett renovieren."},{r:"ki",m:"Das freut mich! Haben Sie schon eine Vorstellung vom Budget?"},{r:"an",m:"Begehbare Dusche, freistehende Wanne, ca. 20.000 Euro."},{r:"ki",m:"Perfekt. Herr Spitzer erstellt Ihnen gerne einen Kostenvoranschlag. Wann passt ein Beratungstermin?"}]},
+{id:3,n:"Thomas Müller",t:"14:32",dur:"3:24",st:"termin",sum:"Heizungswartung gewünscht. Termin gebucht: Do 27.02. um 10:00 Uhr.",sent:"positiv",val:450,ok:false,tr:[{r:"ki",m:"Gerne! Welche Art von Heizung haben Sie?"},{r:"an",m:"Eine Gastherme, Vaillant, ca. 8 Jahre alt."},{r:"ki",m:"Ich hätte am Donnerstag den 27. Februar um 10 Uhr einen Termin. Passt das?"},{r:"an",m:"Ja perfekt, vielen Dank!"}]},
+{id:4,n:"Elisabeth Huber",t:"09:22",dur:"2:55",st:"info",sum:"Frage ob Spitzer auch Photovoltaik-Anlagen montiert und nach Öffnungszeiten.",sent:"neutral",val:0,ok:true},
+{id:5,n:"Franz Koller",t:"17:45",dur:"5:30",st:"termin",sum:"Braucht neue Heizung. Beratungstermin Mo 03.03. um 14:00 gebucht.",sent:"positiv",val:15000,ok:true},
+{id:6,n:"Anna Berger",t:"16:20",dur:"2:10",st:"lead",sum:"Interesse an Wärmepumpe. Möchte nächste Woche Rückruf.",sent:"positiv",val:12000,ok:false}
+];
+
+var cons=[{n:"Peter Wagner",v:20000,c:1},{n:"Franz Koller",v:15000,c:4},{n:"Anna Berger",v:12000,c:1},{n:"Thomas Müller",v:2400,c:3},{n:"Elisabeth Huber",v:0,c:2},{n:"Maria Schneider",v:800,c:1}];
+var wk=[{d:"Mo",a:12},{d:"Di",a:18},{d:"Mi",a:15},{d:"Do",a:22},{d:"Fr",a:19},{d:"Sa",a:8},{d:"So",a:5}];
+var sm={notfall:{l:"Notfall",c:RD,a:"Jetzt anrufen",cls:"badge-notfall"},lead:{l:"Neuer Lead",c:G,a:"Rückruf planen",cls:"badge-lead"},termin:{l:"Termin",c:GR,a:"Bestätigen",cls:"badge-termin"},info:{l:"Info",c:MU,a:"Erledigt",cls:"badge-info"}};
+var sentC={positiv:GR,neutral:MU,dringend:RD};
+
+var state={page:"home",sel:null,showTr:false,missed:15,avg:800,conv:30,liveVal:48250,confetti:false};
+
+// MONEY RAIN
+function spawnMoney(){
+  var el=document.createElement("div");
+  el.className="money-particle";
+  el.textContent=["💰","💵","💎","⭐","🪙"][Math.floor(Math.random()*5)];
+  el.style.left=Math.random()*100+"%";
+  el.style.animationDuration=(2+Math.random()*2)+"s";
+  document.body.appendChild(el);
+  setTimeout(function(){el.remove();},4000);
+}
+
+// CONFETTI
+function spawnConfetti(){
+  for(var i=0;i<30;i++){
+    var el=document.createElement("div");
+    el.className="confetti";
+    el.style.left=Math.random()*100+"%";
+    el.style.top="-10px";
+    el.style.background=["#c9a84c","#34d399","#60a5fa","#f87171","#a78bfa","#e8d48b"][Math.floor(Math.random()*6)];
+    el.style.borderRadius=Math.random()>0.5?"50%":"2px";
+    el.style.animationDuration=(1.5+Math.random()*2)+"s";
+    el.style.animationDelay=(Math.random()*0.5)+"s";
+    document.body.appendChild(el);
+    setTimeout(function(){el.remove();},4000);
+  }
+}
+
+// LIVE COUNTER
+setInterval(function(){
+  state.liveVal+=Math.random()*4;
+  var el=document.getElementById("live-num");
+  if(el)el.textContent="€"+Math.round(state.liveVal).toLocaleString("de-DE");
+  if(Math.random()<0.15)spawnMoney();
+},2000);
+
+function toggle(id){
+  calls=calls.map(function(c){return c.id===id?Object.assign({},c,{ok:!c.ok}):c;});
+  if(state.sel&&state.sel.id===id)state.sel=Object.assign({},state.sel,{ok:!state.sel.ok});
+  var pend=calls.filter(function(c){return!c.ok;});
+  if(pend.length===0&&!state.confetti){state.confetti=true;spawnConfetti();}
+  render();
+}
+
+function nav(p){state.page=p;state.sel=null;state.showTr=false;render();}
+function selCall(c){state.sel=c;state.showTr=false;render();}
+
+function render(){
+  var pend=calls.filter(function(c){return!c.ok;});
+  var done=calls.filter(function(c){return c.ok;});
+  var sorted=pend.slice().sort(function(a,b){var o={notfall:0,lead:1,termin:2,info:3};return(o[a.st]||9)-(o[b.st]||9);});
+  var totalVal=calls.reduce(function(a,c){return a+c.val;},0);
+  var p=state.page;
+  var mRev=Math.round(state.missed*(state.conv/100)*state.avg);
+  var roi=mRev>0?Math.round((mRev/1999)*100):0;
+  var yearProfit=mRev*12-1999*12;
+  var pipeVal=cons.reduce(function(a,c){return a+c.v;},0);
+
+  var html='';
+
+  // SIDEBAR
+  html+='<div class="sidebar">';
+  html+='<div class="logo"><div class="logo-text">POZA<span class="logo-ki"> -KI</span></div><span class="logo-tag">ELITE</span></div>';
+  html+='<div class="nav">';
+  var navI=[["home","🏠","Dashboard"],["calls","📞","Anrufe"],["con","👥","Kontakte"],["roi","📈","ROI Rechner"],["stats","🎯","Analytics"],["set","⚙️","Mehr"]];
+  navI.forEach(function(n){
+    html+='<div class="nav-item'+(p===n[0]?' active':'')+'" onclick="nav(\''+n[0]+'\')">';
+    html+='<span class="nav-em">'+n[1]+'</span><span>'+n[2]+'</span>';
+    if(n[0]==="home"&&pend.length>0)html+='<span class="nav-badge">'+pend.length+'</span>';
+    html+='</div>';
+  });
+  html+='</div>';
+  html+='<div class="sidebar-footer"><div class="user-row"><div class="user-avatar">SI</div><div><div style="font-size:11px;font-weight:700">Spitzer Install.</div><div style="font-size:9px;color:var(--muted)">Exclusive · Gold Level</div></div></div></div>';
+  html+='</div>';
+
+  // MAIN
+  html+='<div class="main">';
+  html+='<div class="topbar"><div style="font-size:16px;font-weight:700">'+{home:"Dashboard",calls:"Anrufe",con:"Kontakte",roi:"ROI Rechner",stats:"Analytics",set:"Einstellungen"}[p]+'</div>';
+  html+='<div class="flex items-center gap-12"><span style="font-size:10px;color:var(--muted)">22. Februar 2026</span>';
+  html+='<div style="position:relative;cursor:pointer;font-size:18px">🔔';
+  if(pend.length>0)html+='<span style="position:absolute;top:-4px;right:-6px;width:16px;height:16px;border-radius:8px;background:'+(calls.some(function(c){return c.st==="notfall"&&!c.ok;})?'var(--red)':'var(--gold)')+';font-size:9px;font-weight:800;color:#000;display:flex;align-items:center;justify-content:center">'+pend.length+'</span>';
+  html+='</div></div></div>';
+  html+='<div class="content">';
+
+  // ═══ HOME ═══
+  if(p==="home"){
+    // ROW 1: Live + KPIs
+    html+='<div class="grid-2 mb-14">';
+    html+='<div class="card card-gold glow-card" style="padding:22px">';
+    html+='<div class="live-label">LIVE UMSATZ DURCH KI-ASSISTENT</div>';
+    html+='<div class="live-counter" id="live-num">€'+Math.round(state.liveVal).toLocaleString("de-DE")+'</div>';
+    html+='<div class="live-sub"><span>↑ 24% vs. Vormonat</span><span>↑ 47 Anrufe gesichert</span></div>';
+    // Level bar
+    html+='<div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(201,168,76,0.15)">';
+    html+='<div class="flex justify-between items-center"><span style="font-size:10px;color:var(--gold);font-weight:700">🏆 Gold Level</span><span style="font-size:9px;color:var(--muted)">7.240 / 10.000 XP</span></div>';
+    html+='<div class="level-bar"><div class="level-fill" style="width:72%"></div></div>';
+    html+='<div style="font-size:9px;color:var(--muted);margin-top:3px">Noch 2.760 XP bis Diamant</div>';
+    html+='</div></div>';
+    html+='<div class="grid-2" style="gap:8px">';
+    [{v:calls.length,l:"Anrufe heute",c:"var(--text)",ch:null},{v:2,l:"Termine gebucht",c:"var(--green)",ch:null},{v:pend.length,l:"Offen",c:pend.length?"var(--gold)":"var(--green)",ch:null},{v:1,l:"Notfälle",c:"var(--red)",ch:null}].forEach(function(k){
+      html+='<div class="card animate-in"><div class="kpi-val" style="color:'+k.c+'">'+k.v+'</div><div class="kpi-label">'+k.l+'</div></div>';
+    });
+    html+='</div></div>';
+
+    // ROW 2: Shield + Score + Streak
+    html+='<div class="grid-3 mb-14">';
+    html+='<div class="card card-red" style="display:flex;align-items:center;gap:14px"><div style="font-size:36px">🛡️</div><div><div style="font-size:14px;font-weight:700">47 Anrufe gesichert</div><div style="font-size:11px;color:var(--muted)">Ohne KI-Assistent: −€38.400</div><div class="serif" style="font-size:20px;font-weight:800;color:var(--green);margin-top:4px">+€38.400</div></div></div>';
+    html+='<div class="card" style="display:flex;align-items:center;gap:14px"><div style="position:relative;width:70px;height:70px;flex-shrink:0"><svg width="70" height="70"><circle cx="35" cy="35" r="30" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="5"/><circle cx="35" cy="35" r="30" fill="none" stroke="'+G+'" stroke-width="5" stroke-dasharray="'+2*Math.PI*30+'" stroke-dashoffset="'+(2*Math.PI*30*(1-0.94))+'" stroke-linecap="round" transform="rotate(-90 35 35)" style="transition:stroke-dashoffset 1s"/></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column"><div class="serif" style="font-size:16px;font-weight:800;color:'+G+'">94%</div><div style="font-size:7px;color:var(--muted)">Score</div></div></div><div><div style="font-size:13px;font-weight:700">KI-Performance</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Top 5% aller POZA-KI Kunden</div></div></div>';
+    html+='<div class="card" style="text-align:center"><div style="font-size:32px">🔥</div><div class="serif" style="font-size:32px;font-weight:800;color:var(--gold)">7</div><div style="font-size:12px;font-weight:700">Tage Streak</div><div style="font-size:10px;color:var(--muted);margin-top:4px">Alle Anrufe rechtzeitig bearbeitet</div><div style="display:flex;gap:3px;justify-content:center;margin-top:8px">';
+    for(var d=0;d<7;d++)html+='<div style="width:14px;height:14px;border-radius:4px;background:var(--gold);opacity:'+(d<7?'1':'0.2')+'"></div>';
+    html+='</div></div>';
+    html+='</div>';
+
+    // ACHIEVEMENTS
+    html+='<div class="mb-14"><div style="font-size:12px;font-weight:700;margin-bottom:8px">🏆 Achievements</div><div class="ach">';
+    [{em:"🔥",l:"7-Tage Streak",ok:true},{em:"🏆",l:"100 Termine",ok:true},{em:"💰",l:"€50k Pipeline",ok:totalVal>=49000},{em:"⭐",l:"Top 5%",ok:true},{em:"📞",l:"500 Anrufe",ok:false},{em:"🚀",l:"Zero Missed",ok:false},{em:"💎",l:"Diamant Level",ok:false}].forEach(function(a){
+      html+='<div class="ach-item '+(a.ok?"ach-done":"ach-lock")+'"><div class="ach-em">'+a.em+'</div><div class="ach-name" style="color:'+(a.ok?G:MU)+'">'+a.l+'</div></div>';
+    });
+    html+='</div></div>';
+
+    // TASKS + CHART
+    html+='<div class="grid-23">';
+    html+='<div>';
+    if(sorted.length>0){
+      html+='<div class="flex items-center gap-6 mb-8"><div class="pulse-dot"></div><span style="font-size:12px;font-weight:700">Braucht Aufmerksamkeit ('+sorted.length+')</span></div>';
+      sorted.forEach(function(c){
+        var s=sm[c.st],u=c.st==="notfall";
+        html+='<div class="task'+(u?" task-urgent":"")+'" onclick="selCall(calls['+calls.indexOf(c)+'])">';
+        if(u)html+='<div class="task-bar" style="background:var(--red)"></div>';
+        html+='<div class="task-inner"><div class="task-row"><div class="task-icon" style="background:'+(s.c)+'18">'+{notfall:"🚨",lead:"⭐",termin:"📅",info:"ℹ️"}[c.st]+'</div><div class="flex-1"><div class="task-name">'+c.n+'</div><div class="task-meta"><span>'+c.t+' · '+c.dur+'</span><span class="badge badge-sent" style="color:'+sentC[c.sent]+';background:'+sentC[c.sent]+'12">'+c.sent+'</span></div></div><div style="text-align:right">'+(c.val>0?'<div class="task-val">€'+c.val.toLocaleString("de-DE")+'</div>':'')+'<span class="badge '+s.cls+'">'+s.l+'</span></div></div>';
+        html+='<div class="task-sum">'+c.sum+'</div>';
+        html+='<button class="btn '+(u?"btn-red":"btn-gold")+'" onclick="event.stopPropagation();toggle('+c.id+')">'+s.a+'</button>';
+        html+='</div></div>';
+      });
+    } else {
+      html+='<div class="card card-green text-center" style="padding:24px"><div style="font-size:24px">✅</div><div style="font-size:15px;font-weight:700;color:var(--green);margin-top:4px">Alles erledigt!</div></div>';
+    }
+    if(done.length>0){
+      html+='<div style="margin-top:10px;font-size:10px;color:var(--muted);font-weight:600">✓ Erledigt ('+done.length+')</div>';
+      done.forEach(function(c){html+='<div style="padding:5px 0;opacity:0.35;font-size:11px;cursor:pointer" onclick="selCall(calls['+calls.indexOf(c)+'])">'+c.n+' · '+c.t+'</div>';});
+    }
+    html+='</div>';
+    // CHART
+    html+='<div><div class="card mb-8"><div style="font-size:12px;font-weight:700;margin-bottom:10px">Diese Woche</div><div class="bar-chart" style="height:120px">';
+    wk.forEach(function(w){
+      html+='<div class="bar-col"><div class="bar-val">'+w.a+'</div><div class="bar-rect" style="width:18px;height:'+Math.round(w.a/22*90)+'px;background:var(--gold)"></div><div class="bar-label">'+w.d+'</div></div>';
+    });
+    html+='</div></div>';
+    // Sentiment mini
+    html+='<div class="card"><div style="font-size:12px;font-weight:700;margin-bottom:8px">Stimmung</div><div class="flex gap-8" style="justify-content:center">';
+    [{l:"Positiv",p:68,c:GR},{l:"Neutral",p:22,c:"#60a5fa"},{l:"Negativ",p:7,c:RD}].forEach(function(s){
+      var r=24,ci=2*Math.PI*r,of=ci-(s.p/100)*ci;
+      html+='<div style="text-align:center"><div style="position:relative;width:56px;height:56px"><svg width="56" height="56"><circle cx="28" cy="28" r="'+r+'" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="4"/><circle cx="28" cy="28" r="'+r+'" fill="none" stroke="'+s.c+'" stroke-width="4" stroke-dasharray="'+ci+'" stroke-dashoffset="'+of+'" stroke-linecap="round" transform="rotate(-90 28 28)"/></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><span class="serif" style="font-size:11px;font-weight:800;color:'+s.c+'">'+s.p+'%</span></div></div><div style="font-size:8px;color:var(--muted);margin-top:2px">'+s.l+'</div></div>';
+    });
+    html+='</div></div></div>';
+    html+='</div>';
+  }
+
+  // ═══ CALLS ═══
+  if(p==="calls"){
+    html+='<div style="display:grid;grid-template-columns:'+(state.sel?"1fr 1fr":"1fr")+';gap:14px">';
+    html+='<div>';
+    calls.forEach(function(c,i){
+      var active=state.sel&&state.sel.id===c.id;
+      var s=sm[c.st];
+      html+='<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:'+(active?'var(--gold-glow)':'var(--card)')+';border-radius:10px;border:1px solid '+(active?'rgba(201,168,76,0.2)':'var(--bd)')+';margin-bottom:4px;cursor:pointer" onclick="selCall(calls['+i+'])">';
+      html+='<span style="font-size:16px">'+(c.ok?"✅":{notfall:"🚨",lead:"⭐",termin:"📅",info:"ℹ️"}[c.st])+'</span>';
+      html+='<div style="flex:1"><div class="flex items-center gap-4"><span style="font-size:13px;font-weight:600">'+c.n+'</span><span class="badge '+s.cls+'">'+s.l+'</span><span class="badge badge-sent" style="color:'+sentC[c.sent]+';background:'+sentC[c.sent]+'12">'+c.sent+'</span></div><div style="font-size:10px;color:var(--muted);margin-top:2px">'+c.sum+'</div></div>';
+      html+='<div style="text-align:right">'+(c.val>0?'<div style="font-size:12px;font-weight:700;color:var(--gold)">€'+c.val.toLocaleString("de-DE")+'</div>':'')+'<div style="font-size:10px">'+c.t+'</div><div style="font-size:9px;color:var(--muted)">'+c.dur+'</div></div></div>';
+    });
+    html+='</div>';
+    if(state.sel){
+      var c=state.sel,s=sm[c.st];
+      html+='<div class="detail">';
+      html+='<div class="flex justify-between" style="margin-bottom:10px"><div><div class="detail-name">'+c.n+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px">'+c.t+' · '+c.dur+'</div><div class="flex gap-4" style="margin-top:5px"><span class="badge '+s.cls+'">'+s.l+'</span><span class="badge badge-sent" style="color:'+sentC[c.sent]+';background:'+sentC[c.sent]+'12">'+c.sent+'</span></div></div><div style="text-align:right">'+(c.val>0?'<div class="serif" style="font-size:20px;font-weight:800;color:var(--gold)">€'+c.val.toLocaleString("de-DE")+'</div>':'')+'<div class="detail-close" onclick="state.sel=null;render()">✕ Schließen</div></div></div>';
+      html+='<div class="summary-box" style="border-left-color:'+s.c+'"><div style="font-size:9px;font-weight:700;color:'+s.c+';letter-spacing:1px;margin-bottom:3px">KI-ZUSAMMENFASSUNG</div><div style="font-size:13px;line-height:1.7">'+c.sum+'</div></div>';
+      if(c.tr){
+        html+='<div style="cursor:pointer;color:var(--gold);font-size:11px;font-weight:600;margin:8px 0" onclick="state.showTr=!state.showTr;render()">'+(state.showTr?"▲":"▼")+' Transkript ('+c.tr.length+' Nachrichten)</div>';
+        if(state.showTr){
+          html+='<div class="transcript">';
+          c.tr.forEach(function(l){
+            html+='<div class="tr-msg"><div class="tr-avatar '+(l.r==="ki"?"tr-ki":"tr-an")+'">'+( l.r==="ki"?"KI":"AN")+'</div><div class="tr-text" style="color:'+(l.r==="ki"?"var(--soft)":"var(--text)")+'">'+l.m+'</div></div>';
+          });
+          html+='</div>';
+        }
+      }
+      html+='<button class="btn '+(c.ok?"btn-done":c.st==="notfall"?"btn-red":"btn-gold")+'" style="margin-top:10px" onclick="toggle('+c.id+')">'+(c.ok?"✓ Erledigt":s.a)+'</button>';
+      html+='</div>';
+    }
+    html+='</div>';
+  }
+
+  // ═══ CONTACTS ═══
+  if(p==="con"){
+    html+='<div class="grid-23">';
+    html+='<div>';
+    cons.forEach(function(c){
+      html+='<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:4px"><div class="user-avatar" style="width:38px;height:38px;font-size:12px">'+c.n.split(" ").map(function(x){return x[0]}).join("")+'</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+c.n+'</div><div style="font-size:9px;color:var(--muted);margin-top:1px">'+c.c+' Anrufe</div></div>'+(c.v>0?'<div class="serif" style="font-size:14px;font-weight:700;color:var(--gold)">€'+c.v.toLocaleString("de-DE")+'</div>':'')+'</div>';
+    });
+    html+='</div><div>';
+    html+='<div class="card card-gold text-center" style="padding:20px;margin-bottom:10px"><div style="font-size:9px;color:var(--muted);letter-spacing:1.5px">PIPELINE-WERT</div><div class="serif" style="font-size:30px;font-weight:900;color:var(--gold);margin:4px 0">€'+pipeVal.toLocaleString("de-DE")+'</div><div style="font-size:10px;color:var(--muted)">'+cons.length+' Kontakte</div></div>';
+    // Sentiment
+    html+='<div class="card"><div style="font-size:11px;font-weight:700;margin-bottom:8px">Kundenverteilung</div>';
+    [{l:"Bestandskunden",v:3,c:GR},{l:"Neue Leads",v:2,c:G},{l:"Notfälle",v:1,c:RD}].forEach(function(s){
+      html+='<div class="flex items-center gap-8" style="margin-bottom:6px"><span style="font-size:10px;color:var(--muted);width:100px">'+s.l+'</span><div style="flex:1;height:6px;background:var(--bd);border-radius:3px"><div style="height:100%;background:'+s.c+';border-radius:3px;width:'+Math.round(s.v/6*100)+'%"></div></div><span style="font-size:10px;font-weight:700;color:'+s.c+'">'+s.v+'</span></div>';
+    });
+    html+='</div></div></div>';
+  }
+
+  // ═══ ROI ═══
+  if(p==="roi"){
+    html+='<div class="grid-2">';
+    html+='<div class="card" style="padding:24px"><div style="font-size:15px;font-weight:700;margin-bottom:18px">Ihre Daten eingeben</div>';
+    html+='<div class="slider-row"><div class="slider-head"><span class="slider-label">Verpasste Anrufe / Woche (ohne KI)</span><span class="slider-val">'+state.missed+'</span></div><input type="range" min="1" max="50" value="'+state.missed+'" oninput="state.missed=+this.value;render()"></div>';
+    html+='<div class="slider-row"><div class="slider-head"><span class="slider-label">Durchschn. Auftragswert</span><span class="slider-val">€'+state.avg.toLocaleString("de-DE")+'</span></div><input type="range" min="100" max="5000" step="50" value="'+state.avg+'" oninput="state.avg=+this.value;render()"></div>';
+    html+='<div class="slider-row"><div class="slider-head"><span class="slider-label">Konversionsrate</span><span class="slider-val">'+state.conv+'%</span></div><input type="range" min="5" max="80" step="5" value="'+state.conv+'" oninput="state.conv=+this.value;render()"></div>';
+    html+='<div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--bd)"><div style="font-size:10px;color:var(--muted);margin-bottom:4px">POZA-KI Investition</div><div class="serif" style="font-size:18px;font-weight:800;color:var(--text)">€1.999 / Monat</div></div>';
+    html+='</div>';
+    html+='<div>';
+    html+='<div class="card card-gold glow-card" style="padding:24px;margin-bottom:12px"><div class="live-label" style="margin-bottom:12px">IHR ERGEBNIS</div>';
+    html+='<div class="grid-2" style="gap:16px"><div><div style="font-size:10px;color:var(--muted)">Mehrumsatz / Monat</div><div class="serif" style="font-size:26px;font-weight:900;color:var(--green)">€'+mRev.toLocaleString("de-DE")+'</div></div>';
+    html+='<div><div style="font-size:10px;color:var(--muted)">Return on Investment</div><div class="serif" style="font-size:26px;font-weight:900;color:var(--gold)">'+roi+'%</div></div>';
+    html+='<div><div style="font-size:10px;color:var(--muted)">Jahresgewinn (netto)</div><div class="serif" style="font-size:26px;font-weight:900;color:'+(yearProfit>0?'var(--green)':'var(--red)')+'">€'+yearProfit.toLocaleString("de-DE")+'</div></div>';
+    html+='<div><div style="font-size:10px;color:var(--muted)">Gesicherte Anrufe / Monat</div><div class="serif" style="font-size:26px;font-weight:900">'+(state.missed*4)+'</div></div></div></div>';
+    // Comparison
+    html+='<div class="grid-2" style="gap:10px">';
+    html+='<div class="card card-red text-center" style="padding:16px"><div style="font-size:9px;font-weight:700;color:var(--red);letter-spacing:1.5px">OHNE POZA-KI</div><div class="serif" style="font-size:24px;font-weight:900;color:var(--red);margin:4px 0">−€'+mRev.toLocaleString("de-DE")+'</div><div style="font-size:9px;color:var(--muted)">'+(state.missed*4)+' Anrufe verloren / Monat</div></div>';
+    html+='<div class="card card-green text-center" style="padding:16px"><div style="font-size:9px;font-weight:700;color:var(--green);letter-spacing:1.5px">MIT POZA-KI</div><div class="serif" style="font-size:24px;font-weight:900;color:var(--green);margin:4px 0">+€'+mRev.toLocaleString("de-DE")+'</div><div style="font-size:9px;color:var(--muted)">24/7 · 100% Erreichbarkeit</div></div>';
+    html+='</div></div></div>';
+  }
+
+  // ═══ ANALYTICS ═══
+  if(p==="stats"){
+    html+='<div class="grid-4 mb-14">';
+    [{l:"Anrufe / Monat",v:"324",ch:"+18%"},{l:"Termine gebucht",v:"47",ch:"+12%"},{l:"Mehrumsatz",v:"€38.400",ch:"+24%"},{l:"Ø Gesprächsdauer",v:"2:48",ch:null}].forEach(function(k){
+      html+='<div class="card animate-in">'+(k.ch?'<span style="float:right;font-size:9px;font-weight:700;color:var(--green)">'+k.ch+' ↑</span>':'')+'<div class="kpi-val">'+k.v+'</div><div class="kpi-label">'+k.l+'</div></div>';
+    });
+    html+='</div>';
+    html+='<div class="grid-2 mb-14">';
+    html+='<div class="card card-gold glow-card text-center" style="padding:24px"><div style="font-size:9px;color:var(--gold);letter-spacing:2.5px;font-weight:700">RETURN ON INVESTMENT</div><div class="serif" style="font-size:48px;font-weight:900;color:var(--gold);margin:4px 0;text-shadow:0 0 40px rgba(201,168,76,0.3)">1.920%</div><div style="font-size:12px;color:var(--muted)">€38.400 Mehrumsatz bei €1.999 Investition</div>';
+    html+='<div style="display:flex;justify-content:center;gap:24px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(201,168,76,0.15)">';
+    [{v:"47",l:"Calls gesichert"},{v:"93%",l:"Zufriedenheit"},{v:"24/7",l:"Erreichbar"}].forEach(function(k){html+='<div><div class="serif" style="font-size:20px;font-weight:800">'+k.v+'</div><div style="font-size:8px;color:var(--muted)">'+k.l+'</div></div>';});
+    html+='</div></div>';
+    html+='<div><div class="card mb-8"><div style="font-size:12px;font-weight:700;margin-bottom:8px">Stimmungsanalyse</div><div class="flex gap-10" style="justify-content:center">';
+    [{l:"Positiv",p:68,c:GR},{l:"Neutral",p:22,c:"#60a5fa"},{l:"Negativ",p:7,c:RD},{l:"Dringend",p:3,c:"#f59e0b"}].forEach(function(s){
+      var r=22,ci=2*Math.PI*r,of=ci-(s.p/100)*ci;
+      html+='<div style="text-align:center"><div style="position:relative;width:52px;height:52px"><svg width="52" height="52"><circle cx="26" cy="26" r="'+r+'" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="4"/><circle cx="26" cy="26" r="'+r+'" fill="none" stroke="'+s.c+'" stroke-width="4" stroke-dasharray="'+ci+'" stroke-dashoffset="'+of+'" stroke-linecap="round" transform="rotate(-90 26 26)"/></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><span class="serif" style="font-size:10px;font-weight:800;color:'+s.c+'">'+s.p+'%</span></div></div><div style="font-size:8px;color:var(--muted);margin-top:2px">'+s.l+'</div></div>';
+    });
+    html+='</div><div style="font-size:9px;color:var(--muted);text-align:center;margin-top:6px">324 Gespräche analysiert</div></div>';
+    html+='<div class="card card-red text-center"><div style="font-size:10px;font-weight:700;color:var(--red)">Ohne POZA-KI hätten Sie verpasst:</div><div class="flex" style="justify-content:center;gap:20px;margin-top:8px"><div><div class="serif" style="font-size:22px;font-weight:800;color:var(--red)">47</div><div style="font-size:8px;color:var(--muted)">Anrufe</div></div><div><div class="serif" style="font-size:22px;font-weight:800;color:var(--red)">€38.4k</div><div style="font-size:8px;color:var(--muted)">Umsatz</div></div></div></div></div></div>';
+  }
+
+  // ═══ SETTINGS ═══
+  if(p==="set"){
+    html+='<div class="card" style="display:flex;align-items:center;gap:14px;padding:18px;margin-bottom:14px"><div class="user-avatar" style="width:48px;height:48px;font-size:16px">SI</div><div><div style="font-size:16px;font-weight:700">Spitzer Installationen</div><div style="font-size:11px;color:var(--muted)">Exclusive Plan · Aktiv seit Februar 2026</div></div></div>';
+    html+='<div class="grid-3">';
+    [{em:"🔔",l:"Benachrichtigungen",d:"Push bei Notfällen"},{em:"🤖",l:"KI-Assistent",d:"Name, Stimme, Verhalten"},{em:"📅",l:"Kalender-Sync",d:"Google Calendar"},{em:"📧",l:"Täglicher Report",d:"E-Mail um 18:00"},{em:"🏢",l:"Firmendaten",d:"Leistungen, Zeiten"},{em:"🔒",l:"Datenschutz",d:"DSGVO, Daten"}].forEach(function(s){
+      html+='<div class="card" style="cursor:pointer;padding:14px"><div style="font-size:22px;margin-bottom:6px">'+s.em+'</div><div style="font-size:12px;font-weight:700">'+s.l+'</div><div style="font-size:10px;color:var(--muted);margin-top:2px">'+s.d+'</div></div>';
+    });
+    html+='</div>';
+    html+='<div style="font-size:9px;color:var(--muted);text-align:center;margin-top:20px">POZA-KI Elite Dashboard v2.0 · © 2026 POZA-KI · poza-ki.com</div>';
+  }
+
+  html+='</div></div>';
+  document.getElementById("app").innerHTML=html;
+}
+
+render();
+</script>
+</body>
+</html>
